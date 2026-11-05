@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#FFF9F3" />
+<title>小狗窝</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div id="screens">
+
+  <!-- ============ 首页 ============ -->
+  <section class="screen active" id="screen-home">
+    <div class="home-date" id="homeDate">—</div>
+    <div class="home-weather" id="homeWeather"></div>
+    <div class="home-tip" id="homeTip"></div>
+
+    <div class="home-sticker">
+      <img id="homeSticker" class="sticker-tap" src="assets/stickers/521.gif" alt="" />
+      <div class="tap-hint" id="tapHint">戳它一下</div>
+    </div>
+
+    <div class="home-days">
+      <div class="days-label"><i></i><span>一起走过</span><i></i></div>
+      <div class="days-num"><span id="daysNum">0</span><small>天</small></div>
+      <div class="days-since" id="daysSince"></div>
+    </div>
+
+    <div class="daily-line" id="dailyLine"></div>
+
+    <div class="next-card" id="nextCard">
+      <div class="next-icon" id="nextIcon">📌</div>
+      <div class="next-main">
+        <span class="tag">最近的日子</span>
+        <span class="name" id="nextName">—</span>
+      </div>
+      <div class="next-right">
+        <b id="nextDays">—</b>
+        <span class="chev" aria-hidden="true">›</span>
+      </div>
+    </div>
+
+    <div class="home-actions">
+      <button class="btn btn-primary" id="btnMood">找狗宝</button>
+      <button class="btn-ghost" id="btnJustLook">只是想看看小狗宝！</button>
+    </div>
+
+    <div class="home-foot">它一直在</div>
+  </section>
+
+  <!-- ============ 纪念日 ============ -->
+  <section class="screen" id="screen-days">
+    <div class="page-head">
+      <h2>我们的日子</h2>
+      <p>记着的日子，一个都不会忘</p>
+    </div>
+    <div class="ann-list" id="annList"></div>
+    <button class="add-btn" id="btnAddAnn">＋ 添加一个日子</button>
+  </section>
+
+  <!-- ============ 我 ============ -->
+  <section class="screen" id="screen-me">
+    <div class="page-head">
+      <h2>我们</h2>
+      <p>这些只存在你的手机里</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">资料</div>
+
+    <div class="field">
+      <label>你的名字</label>
+      <input id="inpHerName" placeholder="宝宝" />
+    </div>
+    <div class="field">
+      <label>他的名字</label>
+      <input id="inpMyName" placeholder="狗狗宝" />
+    </div>
+    <div class="field">
+      <label>在一起的日子</label>
+      <input id="inpStart" type="date" />
+    </div>
+    <div class="field">
+      <label>你的生日</label>
+      <input id="inpBirthday" type="date" />
+    </div>
+    <div class="field">
+      <label>他的生日</label>
+      <input id="inpMyBirthday" type="date" />
+    </div>
+
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">城市</div>
+
+    <div class="field">
+      <label>城市（用来看天气）</label>
+      <input id="inpCity" placeholder="广州" />
+    </div>
+    <div class="field row">
+      <label>首页显示起点日期</label>
+      <input id="inpShowSince" type="checkbox" />
+    </div>
+    <div class="city-chips">
+      <button class="city-chip" data-city="广州">广州</button>
+      <button class="city-chip" data-city="深圳">深圳</button>
+      <button class="city-chip" data-city="佛山">佛山</button>
+      <button class="city-chip" data-city="东莞">东莞</button>
+    </div>
+    <button class="btn-ghost btn-inline" id="btnLocate">用定位自动填写</button>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">紧急通知</div>
+    <div class="field">
+      <label>通道</label>
+      <select id="selProvider">
+        <option value="serverchan">Server酱 · 微信</option>
+        <option value="bark">Bark · iPhone 推送</option>
+        <option value="pushplus">PushPlus · 微信</option>
+        <option value="custom">自定义链接</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>密钥 / 链接</label>
+      <input id="inpToken" placeholder="只填 key，例如 pXk3abc..." />
+    </div>
+    <p class="note" id="notifyState"></p>
+    <div class="btn-row">
+      <button class="btn-ghost btn-inline" id="btnTestNotify">测试推送</button>
+      <button class="btn-ghost btn-inline" id="btnTestReminder">测试系统通知</button>
+    </div>
+    <p class="note">只有你点「我要找小狗」并确认时才会联网，平时不发送任何数据。</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">自定义情话</div>
+      <textarea id="inpCustomLines" class="ta" placeholder="一行一句。比如你们之间的暗号、你喜欢的歌词。"></textarea>
+      <p class="note">只存在这台手机上，会和内置的句子一起随机出现。</p>
+    </div>
+
+    <button class="btn btn-primary" id="btnSave">保存</button>
+
+    <div class="about">
+      小狗窝 · 只属于我们<br />
+      所有数据保存在这台手机上，不上传、不联网
+    </div>
+  </section>
+
+  <!-- ============ 足迹 ============ -->
+
+</div>
+
+<!-- ============ 底部导航 ============ -->
+<nav class="tabbar">
+  <button data-tab="home" class="active"><span class="dot">窝</span>小窝</button>
+  <button data-tab="days"><span class="dot">日</span>日子</button>
+  <button data-tab="map"><span class="dot">迹</span>足迹</button>
+  <button data-tab="me"><span class="dot">我</span>我们</button>
+</nav>
+
+<!-- ============ 心情弹层 ============ -->
+<div class="overlay" id="moodOverlay">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h3>什么都可以跟狗狗宝倾诉哦！</h3>
+    <div class="mood-grid" id="moodGrid"></div>
+  </div>
+</div>
+
+<!-- ============ 安慰层 ============ -->
+<div class="comfort" id="comfort">
+  <img id="comfortSticker" src="assets/stickers/heart.gif" alt="" />
+  <div class="msg" id="comfortMsg"></div>
+  <div class="from" id="comfortFrom"></div>
+  <button class="btn btn-primary" id="btnHug">抱抱我</button>
+  <button class="btn-ghost" id="btnBreath">我要找小狗</button>
+  <button class="btn-ghost" id="btnCloseComfort">我没事了</button>
+</div>
+
+<!-- ============ 他今天也很好 ============ -->
+<div class="overlay" id="loveOverlay">
+  <div class="sheet love-sheet">
+    <div class="handle"></div>
+    <div class="love-tag">狗狗宝今天也很好</div>
+    <img class="love-sticker" id="loveSticker" src="assets/stickers/love.gif" alt="" />
+    <p class="love-msg" id="loveMsg"></p>
+    <button class="btn btn-primary" id="btnLoveNext">再说一句</button>
+    <button class="btn-ghost" id="btnLoveClose">知道啦</button>
+  </div>
+</div>
+
+<!-- ============ 叫他 ============ -->
+<div class="overlay" id="callOverlay">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h3>要叫他吗？</h3>
+    <p class="sub">他会收到一条「小狗需要你」</p>
+    <button class="btn btn-primary" id="btnCallYes">叫他</button>
+    <button class="btn-ghost" id="btnCallNo">先不用，陪我待会儿</button>
+  </div>
+</div>
+
+<!-- ============ 呼吸 ============ -->
+<div class="breath" id="breath">
+  <div class="breath-stage">
+    <div class="breath-halo" id="breathHalo"></div>
+    <img class="breath-dog" id="breathDog" src="assets/stickers/heart.gif" alt="" />
+  </div>
+  <div class="breath-dots" id="breathDots"></div>
+  <div class="hint" id="breathHint">跟着它，慢慢来</div>
+  <div class="stop" id="btnStopBreath">先不做了</div>
+</div>
+
+<!-- ============ 添加纪念日 ============ -->
+<div class="overlay" id="addOverlay">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h3>添加一个日子</h3>
+    <p class="sub">比如第一次见面、第一次旅行</p>
+    <div class="field">
+      <label>叫什么</label>
+      <input id="inpAnnTitle" placeholder="第一次见面" />
+    </div>
+    <div class="field">
+      <label>哪一天</label>
+      <input id="inpAnnDate" type="date" />
+    </div>
+    <div class="field">
+      <label>每年都过吗</label>
+      <input id="inpAnnYearly" type="checkbox" checked style="height:24px;width:24px;padding:0" />
+    </div>
+    <button class="btn btn-primary" id="btnSaveAnn">保存</button>
+    <button class="btn-ghost" id="btnCancelAnn">先不加了</button>
+  </div>
+</div>
+
+<!-- ============ 测试结果 ============ -->
+<div class="overlay" id="testOverlay">
+  <div class="sheet">
+    <div class="handle"></div>
+    <h3>测试</h3>
+    <p class="sub" id="testMsg"></p>
+    <div class="url-box" id="testUrl"></div>
+    <button class="btn btn-primary" id="btnCloseTest">知道了</button>
+  </div>
+</div>
+
+<!-- ============ 首次引导 ============ -->
+<div class="onboard" id="onboard">
+  <img src="assets/stickers/heart.gif" alt="" />
+  <h2>欢迎回家</h2>
+  <p>先告诉我两件事，剩下的交给我</p>
+  <div class="field">
+    <label>你的名字</label>
+    <input id="obHerName" placeholder="宝宝" />
+  </div>
+  <div class="field">
+    <label>在一起的日子</label>
+    <input id="obStart" type="date" />
+  </div>
+  <button class="btn btn-primary" id="btnOnboard">开始</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/vendor/solarlunar.min.js"></script>
+<script src="js/events.js"></script>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

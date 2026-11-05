@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#FFF9F3" />
+  <meta name="description" content="旅行足迹 · 点亮地图，把去过的城市收藏在一张会发光的中国地图上。" />
+  <title>旅行足迹 · 点亮地图</title>
+  <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="app" id="app">
+    <div class="ambient ambient-a" aria-hidden="true"></div>
+    <div class="ambient ambient-b" aria-hidden="true"></div>
+
+    <main class="app-scroll" id="appScroll">
+      <header class="hero-header">
+        <div class="brand-row">
+          <div class="brand">
+            <span class="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M12 21s6.2-5.5 6.2-11A6.2 6.2 0 0 0 5.8 10c0 5.5 6.2 11 6.2 11Z" fill="currentColor" opacity=".92"/>
+                <circle cx="12" cy="9.8" r="2.25" fill="#FFF9F3"/>
+              </svg>
+            </span>
+            <span class="brand-name">旅行足迹</span>
+          </div>
+          <div class="brand-meta">
+            <button class="brand-info" id="btnMapDataInfoTop" type="button" aria-label="查看地图资料版本">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="8.2" stroke="currentColor" stroke-width="1.4"/><path d="M12 10.5v5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="7.8" r="1" fill="currentColor"/></svg>
+            </button>
+          </div>
+        </div>
+        <p class="hero-summary" id="heroSummary"></p>
+      </header>
+
+      <section class="stats-card" aria-label="旅行统计">
+        <div class="stat">
+          <strong id="statCities">0</strong>
+          <span>点亮城市</span>
+        </div>
+        <i class="stat-divider" aria-hidden="true"></i>
+        <div class="stat">
+          <strong id="statVisits">0</strong>
+          <span>到访次数</span>
+        </div>
+        <i class="stat-divider" aria-hidden="true"></i>
+        <div class="stat stat-date">
+          <strong id="statFirst">—</strong>
+          <span>初次到访</span>
+        </div>
+      </section>
+
+      <div class="view-switch" role="tablist" aria-label="视图切换">
+        <button class="view-tab is-active" id="tabMap" role="tab" aria-selected="true" aria-controls="mapView" data-view="map">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 6.8 9 4.5l6 2.6 5-2.2v12.1l-5 2.3-6-2.6-5 2.2V6.8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 4.7v12.1M15 7.2v12" stroke="currentColor" stroke-width="1.3" opacity=".55"/></svg>
+          地图
+        </button>
+        <button class="view-tab" id="tabList" role="tab" aria-selected="false" aria-controls="listView" data-view="list">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M9 6.5h11M9 12h11M9 17.5h11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="4.6" cy="6.5" r="1.3" fill="currentColor"/><circle cx="4.6" cy="12" r="1.3" fill="currentColor"/><circle cx="4.6" cy="17.5" r="1.3" fill="currentColor"/></svg>
+          列表
+        </button>
+        <span class="view-thumb" id="viewThumb" aria-hidden="true"></span>
+      </div>
+
+      <section class="view-panel" id="mapView" role="tabpanel" aria-labelledby="tabMap">
+        <div class="map-card">
+          <div class="map-head">
+            <div>
+              <span class="map-kicker" id="mapKicker">CHINA · MY FOOTPRINTS</span>
+              <h2 id="mapTitle">中国 · 足迹地图</h2>
+            </div>
+            <div class="map-legend" id="mapLegend" aria-label="地图图例">
+              <span><i class="legend-block lit"></i>去过的城市</span>
+              <span><i class="legend-block dim"></i>未点亮</span>
+            </div>
+          </div>
+
+          <div class="map-stage" id="mapStage">
+            <svg class="china-map" id="chinaMap" viewBox="0 0 1000 680" role="img" aria-label="中国城市旅行足迹地图">
+              <defs>
+                <filter id="softLand" x="-10%" y="-10%" width="120%" height="120%">
+                  <feDropShadow dx="0" dy="7" stdDeviation="8" flood-color="#8AA4AD" flood-opacity=".10" />
+                </filter>
+                <filter id="pinkGlow" x="-300%" y="-300%" width="700%" height="700%">
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="15" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="blur" />
+                  </feMerge>
+                </filter>
+                <filter id="dotGlow" x="-350%" y="-350%" width="800%" height="800%">
+                  <feGaussianBlur in="SourceGraphic" stdDeviation="7" result="blur" />
+                  <feMerge>
+                    <feMergeNode in="blur" />
+                    <feMergeNode in="SourceGraphic" />
+                  </feMerge>
+                </filter>
+                <radialGradient id="mapWash" cx="50%" cy="42%" r="58%">
+                  <stop offset="0" stop-color="#F6FAFA" />
+                  <stop offset="1" stop-color="#E8F0F2" />
+                </radialGradient>
+                <linearGradient id="landWash" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="#FFFDF7" />
+                  <stop offset=".55" stop-color="#FFF7EC" />
+                  <stop offset="1" stop-color="#FBEEDF" />
+                </linearGradient>
+                <linearGradient id="litCity" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stop-color="#FFD0D8" />
+                  <stop offset=".45" stop-color="#FFB4C4" />
+                  <stop offset="1" stop-color="#FF8FA8" />
+                </linearGradient>
+                <filter id="regionGlow" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="8" />
+                </filter>
+                <pattern id="seaDots" width="34" height="34" patternUnits="userSpaceOnUse">
+                  <circle cx="2" cy="2" r="1.2" fill="#AFC4CA" opacity=".28" />
+                </pattern>
+              </defs>
+              <rect width="1000" height="680" fill="url(#mapWash)" />
+              <rect width="1000" height="680" fill="url(#seaDots)" opacity=".62" />
+              <g id="provinceLayer" class="province-layer" filter="url(#softLand)"></g>
+              <g id="cityLayer" class="city-layer"></g>
+            </svg>
+            <div class="city-labels" id="cityLabels" aria-hidden="true"></div>
+
+            <div class="map-pick-banner" id="mapPickBanner" hidden>
+              <span>点击地图，选择一个去过的地方</span>
+              <button type="button" id="mapPickCancel">取消</button>
+            </div>
+            <div class="map-pick-marker" id="mapPickMarker" hidden aria-hidden="true"><i></i></div>
+
+            <div class="map-stamp" aria-hidden="true">
+              <span class="stamp-line"></span>
+              <span>一直在路上</span>
+            </div>
+
+            <div class="map-empty" id="mapEmpty">
+              <span class="empty-orbit" aria-hidden="true"><i></i></span>
+              <div>
+                <strong>地图还没有亮起来</strong>
+                <small>用文字添加一座去过的城市，整座城市会被点亮</small>
+              </div>
+            </div>
+
+            <div class="city-map-page" id="cityMapPage" hidden>
+              <div class="city-map-canvas" id="cityMapCanvas">
+                <svg class="city-map-svg" id="cityMapSvg" viewBox="0 0 1000 680" role="img" aria-label="城市大地图"></svg>
+              </div>
+              <div class="city-district-labels" id="cityDistrictLabels" aria-hidden="true"></div>
+              <div class="city-pins" id="cityPins"></div>
+              <div class="city-spot-labels" id="citySpotLabels" aria-hidden="true"></div>
+              <div class="real-map" id="realMap" hidden aria-label="在线实景地图"></div>
+              <div class="spot-pick-banner" id="spotPickBanner" hidden>
+                <span id="spotPickText">点击地图选择地点位置</span>
+                <button type="button" id="spotPickCancel">取消</button>
+              </div>
+              <div class="city-map-fallback" id="cityMapFallback" hidden>
+                <div class="city-map-fallback-card">
+                  <span class="fallback-kicker">ONLINE MAP</span>
+                  <strong id="cityFallbackTitle">城市</strong>
+                  <p class="fallback-copy">在线地图暂时连不上</p>
+                  <p class="fallback-hint">请检查网络后重试；已到访景点如下</p>
+                  <div class="fallback-spots" id="cityFallbackSpots"></div>
+                  <button class="city-map-retry" id="cityMapRetry" type="button">重新连接</button>
+                </div>
+              </div>
+              <div class="city-spot-info" id="citySpotInfo">
+                <span>点击编号，查看代表景点</span>
+              </div>
+              <button class="city-add-spot-link" id="btnCityAddSpot" type="button">＋ 添加地点</button>
+              <button class="city-detail-link" id="btnCityMapDetail" type="button">城市详情 <span aria-hidden="true">→</span></button>
+              <div class="city-zoom-controls" id="cityZoomControls">
+                <button id="cityZoomOut" type="button" aria-label="缩小地图">−</button>
+                <button id="cityZoomReset" type="button" aria-label="重置地图缩放">1:1</button>
+                <button id="cityZoomIn" type="button" aria-label="放大地图">＋</button>
+              </div>
+              <button class="city-map-toggle" id="cityRealMapToggle" type="button">
+                实景地图 <span>需联网</span>
+              </button>
+              <div class="city-spot-legend" id="citySpotLegend"></div>
+            </div>
+
+          </div>
+
+          <div class="map-pager-bar" id="mapPagerBar" hidden>
+            <button class="map-arrow prev" id="mapPrev" type="button" aria-label="上一页">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m15 5-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="map-pager-strip" id="mapPagerStrip" aria-label="城市地图翻页"></div>
+            <button class="map-arrow next" id="mapNext" type="button" aria-label="下一页">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m9 5 7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+
+          <div class="map-foot">
+            <span class="map-hint" id="mapHint">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21s6.2-5.5 6.2-11A6.2 6.2 0 0 0 5.8 10c0 5.5 6.2 11 6.2 11Z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="9.8" r="2.1" fill="currentColor"/></svg>
+              点击粉色城市块，翻页查看城市大地图
+            </span>
+            <span class="map-count" id="mapCount">0 / 70</span>
+          </div>
+        </div>
+
+        <section class="recent-block" id="recentBlock">
+          <div class="section-head">
+            <div>
+              <span class="section-kicker">RECENT MOMENTS</span>
+              <h2>最近点亮</h2>
+            </div>
+            <button class="text-btn" id="btnSeeAll" type="button">查看全部 <span aria-hidden="true">→</span></button>
+          </div>
+          <div class="recent-list" id="recentList"></div>
+          <div class="recent-empty" id="recentEmpty">
+            <div class="recent-empty-art" aria-hidden="true">
+              <span class="mini-pin"></span>
+              <span class="mini-line"></span>
+            </div>
+            <p>还没有到访记录</p>
+            <small>添加城市并记录一次出发，这里会留下第一张照片。</small>
+          </div>
+        </section>
+      </section>
+
+      <section class="view-panel" id="listView" role="tabpanel" aria-labelledby="tabList" hidden>
+        <div class="section-head list-head">
+          <div>
+            <span class="section-kicker">MY CITIES</span>
+            <h2>我的城市</h2>
+          </div>
+          <span class="list-count" id="listCount">共 0 座</span>
+        </div>
+        <div class="city-list" id="cityList"></div>
+        <div class="list-empty" id="listEmpty">
+          <div class="empty-illustration" aria-hidden="true">
+            <svg viewBox="0 0 120 100" fill="none">
+              <path d="M18 73c8-20 21-30 38-30 18 0 30 9 42 30" stroke="#F2C8D0" stroke-width="3" stroke-linecap="round"/>
+              <path d="M60 55s13-11.8 13-23a13 13 0 1 0-26 0c0 11.2 13 23 13 23Z" fill="#FF9FB2"/>
+              <circle cx="60" cy="32" r="5" fill="#FFF9F3"/>
+              <circle cx="31" cy="76" r="3" fill="#EBD9CD"/>
+              <circle cx="89" cy="76" r="3" fill="#EBD9CD"/>
+              <path d="M35 87h50" stroke="#F2E3D8" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <h3>你的城市故事，从第一站开始</h3>
+          <p>选择一座去过的城市，上传照片、写下备注，地图就会为它亮起一盏粉色的灯。</p>
+          <button class="soft-primary-btn" id="btnEmptyAdd" type="button">＋ 添加第一座城市</button>
+        </div>
+      </section>
+
+      <footer class="app-foot">
+        <span>所有足迹仅保存在这台设备的浏览器里</span>
+        <button class="app-foot-link" id="btnMapDataInfo" type="button">地图资料 · v2026.11.9</button>
+      </footer>
+    </main>
+
+    <div class="bottom-bar">
+      <button class="add-city-btn" id="btnAddCity" type="button">
+        <span class="plus" aria-hidden="true">＋</span>
+        添加城市
+      </button>
+    </div>
+
+    <!-- 添加城市 -->
+    <div class="modal" id="addCityModal" hidden>
+      <div class="modal-backdrop" data-close="addCity" aria-hidden="true"></div>
+      <div class="sheet city-sheet" role="dialog" aria-modal="true" aria-labelledby="addCityTitle">
+        <div class="sheet-grabber" aria-hidden="true"></div>
+        <header class="sheet-head">
+          <div>
+            <span class="sheet-kicker">NEW PLACE</span>
+            <h2 id="addCityTitle">添加一座城市</h2>
+          </div>
+          <button class="icon-btn close-btn" type="button" data-close="addCity" aria-label="关闭">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </header>
+        <div class="sheet-body">
+          <div class="field city-search-field">
+            <label class="field-label" for="citySearch">输入城市名</label>
+            <div class="city-search-wrap">
+              <svg class="search-icon" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.7" stroke="currentColor" stroke-width="1.6"/><path d="m15 15 4.2 4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              <input id="citySearch" type="text" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="citySuggestions" autocomplete="off" spellcheck="false" placeholder="输入城市名，例如：广州" />
+              <div class="city-suggestions" id="citySuggestions" role="listbox" aria-label="城市候选" hidden></div>
+            </div>
+            <p class="field-hint">从推荐里选择一座城市，按内置经纬度自动落点；也可展开手动输入。</p>
+            <button class="map-pick-trigger" id="btnMapPick" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 21s6.2-5.5 6.2-11A6.2 6.2 0 0 0 5.8 10c0 5.5 6.2 11 6.2 11Z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="9.8" r="2" fill="currentColor"/></svg>
+              在地图上选点
+            </button>
+          </div>
+
+          <div class="coord-card" id="coordCard">
+            <span class="coord-pin" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 21s6.2-5.5 6.2-11A6.2 6.2 0 0 0 5.8 10c0 5.5 6.2 11 6.2 11Z" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="9.8" r="2" fill="currentColor"/></svg>
+            </span>
+            <div>
+              <span id="coordCity">等待选择</span>
+              <small id="coordText">选择城市后会自动落在地图上</small>
+            </div>
+            <span class="coord-tag" id="coordTag">内置坐标</span>
+          </div>
+
+          <details class="manual-box" id="manualBox">
+            <summary>
+              <span>找不到这座城市？手动输入经纬度</span>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m8 10 4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            </summary>
+            <div class="manual-fields">
+              <label class="field compact" for="manualName">
+                <span class="field-label">城市名称</span>
+                <input id="manualName" type="text" maxlength="24" placeholder="例如：顺德" autocomplete="off" />
+              </label>
+              <div class="coord-grid">
+                <label class="field compact" for="manualLng">
+                  <span class="field-label">经度 lng</span>
+                  <input id="manualLng" type="number" step="0.0001" min="73" max="136" placeholder="113.2644" inputmode="decimal" />
+                </label>
+                <label class="field compact" for="manualLat">
+                  <span class="field-label">纬度 lat</span>
+                  <input id="manualLat" type="number" step="0.0001" min="17.8" max="54.5" placeholder="23.1291" inputmode="decimal" />
+                </label>
+              </div>
+              <p class="field-hint">经纬度需落在中国地图范围内（东经 73°–136°，北纬 17.8°–54.5°）。</p>
+            </div>
+          </details>
+
+          <p class="form-error" id="cityFormError" role="alert"></p>
+          <button class="primary-btn" id="btnConfirmCity" type="button">添加城市</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 城市详情 -->
+    <div class="modal" id="cityModal" hidden>
+      <div class="modal-backdrop" data-close="city" aria-hidden="true"></div>
+      <div class="sheet detail-sheet" role="dialog" aria-modal="true" aria-labelledby="detailName">
+        <div class="detail-hero">
+          <div class="detail-top">
+            <span class="sheet-kicker">MY CITY</span>
+            <button class="icon-btn close-btn light" type="button" data-close="city" aria-label="关闭">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <div class="detail-title-row">
+            <div>
+              <h2 id="detailName">城市</h2>
+              <p id="detailMeta">省份 · 经纬度</p>
+            </div>
+            <span class="detail-emblem" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M12 21s6.2-5.5 6.2-11A6.2 6.2 0 0 0 5.8 10c0 5.5 6.2 11 6.2 11Z" fill="currentColor" opacity=".9"/><circle cx="12" cy="9.8" r="2.1" fill="#FFF9F3"/></svg>
+            </span>
+          </div>
+          <div class="detail-stats">
+            <div><strong id="detailVisitCount">0</strong><span>到访</span></div>
+            <div><strong id="detailSpotCount">0</strong><span>景点</span></div>
+            <div><strong id="detailFirst">—</strong><span>初次相遇</span></div>
+          </div>
+        </div>
+        <div class="sheet-body detail-body">
+          <div class="spot-atlas" id="spotAtlas" hidden>
+            <div class="spot-atlas-head">
+              <div>
+                <h3>景点分布</h3>
+                <small>什么位置，有哪些景点</small>
+              </div>
+              <span class="spot-atlas-count" id="spotAtlasCount">10 个地点</span>
+            </div>
+            <div class="spot-atlas-list" id="spotAtlasList"></div>
+          </div>
+          <div class="spot-filter-wrap" id="spotFilterWrap" hidden>
+            <div class="spot-filter-head">
+              <span>按景点筛选</span>
+              <small id="spotFilterHint">点亮过的地点</small>
+            </div>
+            <div class="spot-chips" id="spotChips"></div>
+          </div>
+          <div class="detail-toolbar">
+            <h3>到访记录 <small id="visitOrderHint">按时间倒序</small></h3>
+            <button class="soft-btn" id="btnAddVisit" type="button">＋ 记录到访</button>
+          </div>
+          <div class="visits-list" id="visitsList"></div>
+          <div class="city-empty" id="cityEmpty">
+            <span class="city-empty-icon" aria-hidden="true">
+              <svg viewBox="0 0 48 48" fill="none"><rect x="7" y="12" width="34" height="26" rx="8" stroke="currentColor" stroke-width="2.2"/><path d="M17 20.5 12 12h24l-5 8.5" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><circle cx="24" cy="26" r="6" stroke="currentColor" stroke-width="2.2"/><path d="M24 20v-4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+            </span>
+            <h4>这座城市还没有足迹</h4>
+            <p>上传一张照片，记录第一次抵达这里的日子。</p>
+            <button class="soft-primary-btn small" id="btnCityEmptyAdd" type="button">记录第一次到访</button>
+          </div>
+          <div class="city-remove-wrap">
+            <button class="danger-text-btn" id="btnRemoveCity" type="button">从地图上移除这座城市</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 添加到访 -->
+    <div class="modal" id="visitModal" hidden>
+      <div class="modal-backdrop" data-close="visit" aria-hidden="true"></div>
+      <div class="sheet visit-sheet" role="dialog" aria-modal="true" aria-labelledby="visitTitle">
+        <div class="sheet-grabber" aria-hidden="true"></div>
+        <header class="sheet-head">
+          <div>
+            <span class="sheet-kicker">A NEW MEMORY</span>
+            <h2 id="visitTitle">记录一次到访</h2>
+            <p class="sheet-sub" id="visitCityLabel">广州</p>
+          </div>
+          <button class="icon-btn close-btn" type="button" data-close="visit" aria-label="关闭">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </header>
+        <div class="sheet-body visit-form">
+          <label class="field visit-date-field" for="visitDate">
+            <span class="field-label">到访日期</span>
+            <input id="visitDate" type="date" />
+          </label>
+
+          <div class="field photo-field">
+            <span class="field-label">一张照片 <em>选填</em></span>
+            <label class="photo-picker" id="photoPicker" for="photoInput">
+              <input id="photoInput" type="file" accept="image/*" hidden />
+              <div class="photo-placeholder" id="photoPlaceholder">
+                <span class="camera-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none"><path d="M4.5 8.5h3l1.3-2h6.4l1.3 2h3A1.5 1.5 0 0 1 21 10v7.5a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5V10a1.5 1.5 0 0 1 1.5-1.5Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="12" cy="13.3" r="3.4" stroke="currentColor" stroke-width="1.5"/></svg>
+                </span>
+                <strong>点击选择照片</strong>
+                <small>自动压缩到最长边 800px · JPEG 0.72</small>
+              </div>
+              <img id="photoPreview" class="photo-preview" alt="到访照片预览" hidden />
+              <span class="photo-replace" id="photoReplace" hidden>更换照片</span>
+            </label>
+            <p class="photo-state" id="photoState">照片会压缩后保存在本机 localStorage</p>
+          </div>
+
+          <label class="field note-field" for="visitNote">
+            <span class="field-label">一句备注 <em>必填</em></span>
+            <textarea id="visitNote" rows="2" maxlength="80" placeholder="那天的风、吃到的东西，或者只是心情…"></textarea>
+            <span class="char-count" id="noteCount">0 / 80</span>
+          </label>
+
+          <div class="field">
+            <label class="field-label" for="visitSpot">具体地点 / 景点 <em>可选</em></label>
+            <span class="select-wrap">
+              <select id="visitSpot">
+                <option value="">不选择景点</option>
+              </select>
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m8 10 4 4 4-4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </span>
+            <span class="spot-search-label">或直接搜索一个新地点</span>
+            <input class="custom-spot-input" id="customSpot" type="text" maxlength="60" placeholder="输入新的景点名称" />
+            <button class="spot-search-btn" id="btnSpotSearch" type="button">
+              <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.7" stroke="currentColor" stroke-width="1.6"/><path d="m15 15 4.2 4.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+              在线查找这个地点
+            </button>
+            <button class="spot-search-btn secondary" id="btnSpotPickMap" type="button">搜索失败？在地图上点选位置</button>
+            <div class="spot-search-results" id="spotSearchResults" hidden></div>
+            <p class="field-hint spot-search-hint" id="spotSearchHint">在线搜索由 OpenStreetMap 提供；选中结果后会自动填坐标。</p>
+            <details class="batch-spot-box" id="batchSpotBox">
+              <summary>批量标点 · 每行一个地名</summary>
+              <textarea id="batchSpotInput" rows="3" placeholder="每行一个地点名称"></textarea>
+              <button class="batch-spot-btn" id="btnBatchSpot" type="button">批量搜索并标记</button>
+              <p class="field-hint" id="batchSpotHint"></p>
+            </details>
+            <p class="field-hint spot-hint" id="spotHint">选填。广州已预置 10 个常用景点。</p>
+            <div class="spot-location-fields" id="spotLocationFields" hidden>
+              <div class="spot-location-head">
+                <span>这个景点在城市里的位置</span>
+                <small>选填，会展示在城市的景点分布里</small>
+              </div>
+              <div class="spot-location-grid">
+                <label class="field compact" for="spotArea">
+                  <span class="field-label">所在区域</span>
+                  <input id="spotArea" type="text" maxlength="40" placeholder="例如：天河区" autocomplete="off" />
+                </label>
+                <label class="field compact" for="spotAddress">
+                  <span class="field-label">具体位置</span>
+                  <input id="spotAddress" type="text" maxlength="80" placeholder="例如：体育西路" autocomplete="off" />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <button class="quick-mark-btn" id="btnQuickMark" type="button" disabled>仅标记为去过（无需照片）</button>
+          <p class="form-error" id="visitFormError" role="alert"></p>
+          <button class="primary-btn" id="btnSaveVisit" type="button">保存这段足迹</button>
+          <p class="privacy-note">照片只留在这台设备，不会上传到任何服务器。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 地图资料版本 -->
+    <div class="modal" id="mapDataModal" hidden>
+      <div class="modal-backdrop" data-close="mapData" aria-hidden="true"></div>
+      <div class="sheet mapdata-sheet" role="dialog" aria-modal="true" aria-labelledby="mapDataTitle">
+        <div class="sheet-grabber" aria-hidden="true"></div>
+        <header class="sheet-head">
+          <div>
+            <span class="sheet-kicker">OFFLINE MAP DATA</span>
+            <h2 id="mapDataTitle">地图资料</h2>
+          </div>
+          <button class="icon-btn close-btn" type="button" data-close="mapData" aria-label="关闭">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </button>
+        </header>
+        <div class="sheet-body">
+          <div class="mapdata-hero">
+            <span class="mapdata-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M4 6.8 9 4.5l6 2.6 5-2.2v12.1l-5 2.3-6-2.6-5 2.2V6.8Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M9 4.7v12.1M15 7.2v12" stroke="currentColor" stroke-width="1.1" opacity=".55"/></svg>
+            </span>
+            <div>
+              <strong>地图资料 v2026.11.9</strong>
+              <span>更新于 2026-11-05 · 本地资料 + 在线底图</span>
+            </div>
+          </div>
+          <div class="mapdata-stats">
+            <div><strong id="statCityCount">344</strong><span>可选城市</span></div>
+            <div><strong id="statRegionCount">70</strong><span>城市亮块</span></div>
+            <div><strong id="statSeedVisits">0</strong><span>内置足迹</span></div>
+          </div>
+          <div class="mapdata-stats">
+            <div><strong id="statDataVersion">—</strong><span>本地数据版本</span></div>
+            <div><strong id="statSeedVersion">—</strong><span>内置足迹版本</span></div>
+          </div>
+          <button class="primary-btn" id="btnApplySeed" type="button">用内置足迹覆盖本地数据</button>
+          <p class="field-hint">覆盖后本地新增的足迹会被替换，操作前请确认。</p>
+          <p class="mapdata-copy">全国地图和旅行数据保存在本地；城市页使用高德/OSM 在线底图。刷新页面会重新加载随包发布的本地资料；替换 <code>js/city-regions.js</code>、<code>js/spots.js</code>、<code>js/spot-coords.js</code> 等文件并更新版本号后刷新，即可更新城市亮块、代表景点和地图标注。</p>
+          <button class="primary-btn" id="btnReloadMapData" type="button">重新加载地图资料</button>
+          <p class="field-hint">真正的定时在线更新需要服务端接口；本项目按原始约束保持运行时零网络请求。</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+  </div>
+
+  <script src="vendor/leaflet/leaflet.js"></script>
+  <script src="js/map-path.js"></script>
+  <script src="js/city-regions.js"></script>
+  <script src="js/cities.js"></script>
+  <script src="js/spots.js"></script>
+  <script src="js/seed.js"></script>
+  <script src="js/spot-coords.js"></script>
+  <script src="js/app.js"></script>
+  <a class="back-home" href="../index.html">← 回小窝</a>
+</body>
+</html>

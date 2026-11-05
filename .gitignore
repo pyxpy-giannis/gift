@@ -1,0 +1,17 @@
+# 构建产物
+app/android/build/
+app/android/.gradle/
+app/android/app/build/
+app/android/local.properties
+
+# 签名与密钥（绝对不能提交）
+app/android/keystore.properties
+*.jks
+*.keystore
+
+# 个人素材
+app/www/assets/stickers/
+
+# 系统文件
+.DS_Store
+Thumbs.db
